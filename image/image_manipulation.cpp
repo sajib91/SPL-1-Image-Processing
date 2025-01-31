@@ -111,7 +111,7 @@ void read_image(Image* img) {
 
     cout << "\n\n\n" << endl;
     cout << "\t\t\t!!----Image Reading Complete---!!" << endl;
-   export_image(img, "GrayscaleImage.bmp");
+
 }
 
 void show_image(const char* path) {
@@ -261,31 +261,562 @@ void darken(Image* img) {
 }
 
 void flip(Image* img) {
+    img->colors_modified = vector<Color>(img->height * img->width);
 
+    cout << "\t\t\t\t!!----------Flipping Image----------!!" << endl;
+    cout << "1-> Horizontal Flip" << endl;
+    cout << "2-> Vertical Flip " << endl;
+
+    int choice;
+    cout << endl;
+    cout << "Enter Choice: ";
+    cin >> choice;
+
+    if (choice == 1) {
+        cout << "          Horizontal Flip       " << endl;
+
+        for (int y = 0; y < img->height; ++y) {
+            for (int x = 0; x < img->width / 2; ++x) {
+                img->colors_modified[y * img->width + (img->width - x - 1)].r = img->colors[y * img->width + x].r;
+                img->colors_modified[y * img->width + x].r = img->colors[y * img->width + (img->width - x - 1)].r;
+
+                img->colors_modified[y * img->width + (img->width - x - 1)].g = img->colors[y * img->width + x].g;
+                img->colors_modified[y * img->width + x].g = img->colors[y * img->width + (img->width - x - 1)].g;
+
+                img->colors_modified[y * img->width + (img->width - x - 1)].b = img->colors[y * img->width + x].b;
+                img->colors_modified[y * img->width + x].b = img->colors[y * img->width + (img->width - x - 1)].b;
+            }
+        }
+    } else if (choice == 2) {
+        cout << "          Vertical Flip " << endl;
+
+        for (int y = 0; y < img->height / 2; ++y) {
+            for (int x = 0; x < img->width; ++x) {
+                img->colors_modified[(img->height - y - 1) * img->width + x].r = img->colors[y * img->width + x].r;
+                img->colors_modified[y * img->width + x].r = img->colors[(img->height - y - 1) * img->width + x].r;
+
+                img->colors_modified[(img->height - y - 1) * img->width + x].g = img->colors[y * img->width + x].g;
+                img->colors_modified[y * img->width + x].g = img->colors[(img->height - y - 1) * img->width + x].g;
+
+                img->colors_modified[(img->height - y - 1) * img->width + x].b = img->colors[y * img->width + x].b;
+                img->colors_modified[y * img->width + x].b = img->colors[(img->height - y - 1) * img->width + x].b;
+            }
+        }
+    }
+
+    cout << "\n" << endl;
+    cout << "\t\t\t!!----Image Flip Complete---!!" << endl;
+    cout << "\n" << endl;
+
+    cout << "\tCreating Flip Image......" << endl;
+    cout << "\tFlip Image Created named \"FlipImage.bmp\"......" << endl;
+
+     export_image(img, "FlipImage.bmp");
 }
+
 
 void smoothing(Image* img) {
+    img->colors_modified = vector<Color>(img->height * img->width);
 
+    float filter[3][3] = {
+        {1, 1, 1},
+        {1, 1, 1},
+        {1, 1, 1}
+    };
+
+    for (int y = 1; y < img->height - 1; ++y) {
+        for (int x = 1; x < img->width - 1; ++x) {
+            float r = 0, g = 0, b = 0;
+
+            r += img->colors[(y - 1) * img->width + (x - 1)].r * filter[0][0] + img->colors[(y - 1) * img->width + x].r * filter[0][1] + img->colors[(y - 1) * img->width + (x + 1)].r * filter[0][2];
+            g += img->colors[(y - 1) * img->width + (x - 1)].g * filter[0][0] + img->colors[(y - 1) * img->width + x].g * filter[0][1] + img->colors[(y - 1) * img->width + (x + 1)].g * filter[0][2];
+            b += img->colors[(y - 1) * img->width + (x - 1)].b * filter[0][0] + img->colors[(y - 1) * img->width + x].b * filter[0][1] + img->colors[(y - 1) * img->width + (x + 1)].b * filter[0][2];
+
+            r += img->colors[y * img->width + (x - 1)].r * filter[1][0] + img->colors[y * img->width + x].r * filter[1][1] + img->colors[y * img->width + (x + 1)].r * filter[1][2];
+            g += img->colors[y * img->width + (x - 1)].g * filter[1][0] + img->colors[y * img->width + x].g * filter[1][1] + img->colors[y * img->width + (x + 1)].g * filter[1][2];
+            b += img->colors[y * img->width + (x - 1)].b * filter[1][0] + img->colors[y * img->width + x].b * filter[1][1] + img->colors[y * img->width + (x + 1)].b * filter[1][2];
+
+            r += img->colors[(y + 1) * img->width + (x - 1)].r * filter[2][0] + img->colors[(y + 1) * img->width + x].r * filter[2][1] + img->colors[(y + 1) * img->width + (x + 1)].r * filter[2][2];
+            g += img->colors[(y + 1) * img->width + (x - 1)].g * filter[2][0] + img->colors[(y + 1) * img->width + x].g * filter[2][1] + img->colors[(y + 1) * img->width + (x + 1)].g * filter[2][2];
+            b += img->colors[(y + 1) * img->width + (x - 1)].b * filter[2][0] + img->colors[(y + 1) * img->width + x].b * filter[2][1] + img->colors[(y + 1) * img->width + (x + 1)].b * filter[2][2];
+
+            r /= 9;
+            g /= 9;
+            b /= 9;
+
+            img->colors_modified[y * img->width + x].r = r;
+            img->colors_modified[y * img->width + x].g = g;
+            img->colors_modified[y * img->width + x].b = b;
+        }
+    }
+
+    cout << "\n" << endl;
+    cout << "\t\t\t!!----Image Smoothing Complete---!!" << endl;
+    cout << "\n" << endl;
+
+    cout << "\tCreating Smooth Image......" << endl;
+    cout << "\tSmooth Image Created named \"SmoothImage.bmp\"......" << endl;
+
+     export_image(img, "SmoothImage.bmp");
 }
 
-void sharpen(Image* img) {
 
+void sharpen(Image* img) {
+    img->colors_modified = vector<Color>(img->height * img->width);
+
+    int kernel[4][9] = {
+        {0, 1, 0, 1, -4, 1, 0, 1, 0},
+        {0, -1, 0, -1, 4, -1, 0, -1, 0},
+        {1, 1, 1, 1, -8, 1, 1, 1, 1},
+        {-1, -1, -1, -1, 8, -1, -1, -1, -1},
+    };
+
+    cout << "\n\nChoose Filter: " << endl;
+    cout << "\n1 -> Laplacian filter.\n";
+    cout << "2 -> Strong Laplacian filter.\n";
+    cout << "3 -> High Boost Filter.\n";
+    cout << "4 -> Strong High Boost Filter.\n";
+
+    float filter[3][3];
+    int choice;
+    int index = 0;
+
+    cout << "choice: ";
+    cin >> choice;
+    choice--;
+
+    cout << "\n\n\n" << endl;
+
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            filter[i][j] = kernel[choice][index];
+            index++;
+        }
+    }
+
+    for (int y = 1; y < img->height - 1; ++y) {
+        for (int x = 1; x < img->width - 1; ++x) {
+            double r = 0, g = 0, b = 0;
+
+            r += img->colors[(y - 1) * img->width + (x - 1)].r * filter[0][0] + img->colors[(y - 1) * img->width + x].r * filter[0][1] + img->colors[(y - 1) * img->width + (x + 1)].r * filter[0][2];
+            g += img->colors[(y - 1) * img->width + (x - 1)].g * filter[0][0] + img->colors[(y - 1) * img->width + x].g * filter[0][1] + img->colors[(y - 1) * img->width + (x + 1)].g * filter[0][2];
+            b += img->colors[(y - 1) * img->width + (x - 1)].b * filter[0][0] + img->colors[(y - 1) * img->width + x].b * filter[0][1] + img->colors[(y - 1) * img->width + (x + 1)].b * filter[0][2];
+
+            r += img->colors[y * img->width + (x - 1)].r * filter[1][0] + img->colors[y * img->width + x].r * filter[1][1] + img->colors[y * img->width + (x + 1)].r * filter[1][2];
+            g += img->colors[y * img->width + (x - 1)].g * filter[1][0] + img->colors[y * img->width + x].g * filter[1][1] + img->colors[y * img->width + (x + 1)].g * filter[1][2];
+            b += img->colors[y * img->width + (x - 1)].b * filter[1][0] + img->colors[y * img->width + x].b * filter[1][1] + img->colors[y * img->width + (x + 1)].b * filter[1][2];
+
+            r += img->colors[(y + 1) * img->width + (x - 1)].r * filter[2][0] + img->colors[(y + 1) * img->width + x].r * filter[2][1] + img->colors[(y + 1) * img->width + (x + 1)].r * filter[2][2];
+            g += img->colors[(y + 1) * img->width + (x - 1)].g * filter[2][0] + img->colors[(y + 1) * img->width + x].g * filter[2][1] + img->colors[(y + 1) * img->width + (x + 1)].g * filter[2][2];
+            b += img->colors[(y + 1) * img->width + (x - 1)].b * filter[2][0] + img->colors[(y + 1) * img->width + x].b * filter[2][1] + img->colors[(y + 1) * img->width + (x + 1)].b * filter[2][2];
+
+            r = min(255.0, r);
+            r = max(0.0, r);
+
+            g = min(255.0, g);
+            g = max(0.0, g);
+
+            b = min(255.0, b);
+            b = max(0.0, b);
+
+            img->colors_modified[y * img->width + x].r = r;
+            img->colors_modified[y * img->width + x].g = g;
+            img->colors_modified[y * img->width + x].b = b;
+        }
+    }
+
+    cout << "\n" << endl;
+    cout << "\t\t\t!!----Image Sharpen Complete---!!" << endl;
+    cout << "\n" << endl;
+
+    cout << "\tCreating Sharpen Image......" << endl;
+    cout << "\tSharpen Image Created named \"SharpenImage.bmp\"......" << endl;
+
+     export_image(img, "SharpenImage.bmp");
 }
 
 void gaussian_blur(Image* img) {
+    img->colors_modified = vector<Color>(img->height * img->width);
 
+    cout << "\t\t\t\t!!----------Gaussian Blur----------!!" << endl;
+    cout << "1-> (3 x 3) Gaussian Blur" << endl;
+    cout << "2-> (5 x 5) Gaussian Blur" << endl;
+
+    int choice;
+    cout << endl;
+    cout << "Enter Choice: ";
+    cin >> choice;
+
+    if (choice == 1) {
+        int filter[3][3] = {
+            {1, 2, 1},
+            {2, 4, 2},
+            {1, 2, 1},
+        };
+
+        for (int y = 1; y < img->height - 1; ++y) {
+            for (int x = 1; x < img->width - 1; ++x) {
+                float r = 0, g = 0, b = 0;
+
+                r += img->colors[(y - 1) * img->width + (x - 1)].r * filter[0][0] + img->colors[(y - 1) * img->width + x].r * filter[0][1] + img->colors[(y - 1) * img->width + (x + 1)].r * filter[0][2];
+                g += img->colors[(y - 1) * img->width + (x - 1)].g * filter[0][0] + img->colors[(y - 1) * img->width + x].g * filter[0][1] + img->colors[(y - 1) * img->width + (x + 1)].g * filter[0][2];
+                b += img->colors[(y - 1) * img->width + (x - 1)].b * filter[0][0] + img->colors[(y - 1) * img->width + x].b * filter[0][1] + img->colors[(y - 1) * img->width + (x + 1)].b * filter[0][2];
+
+                r += img->colors[y * img->width + (x - 1)].r * filter[1][0] + img->colors[y * img->width + x].r * filter[1][1] + img->colors[y * img->width + (x + 1)].r * filter[1][2];
+                g += img->colors[y * img->width + (x - 1)].g * filter[1][0] + img->colors[y * img->width + x].g * filter[1][1] + img->colors[y * img->width + (x + 1)].g * filter[1][2];
+                b += img->colors[y * img->width + (x - 1)].b * filter[1][0] + img->colors[y * img->width + x].b * filter[1][1] + img->colors[y * img->width + (x + 1)].b * filter[1][2];
+
+                r += img->colors[(y + 1) * img->width + (x - 1)].r * filter[2][0] + img->colors[(y + 1) * img->width + x].r * filter[2][1] + img->colors[(y + 1) * img->width + (x + 1)].r * filter[2][2];
+                g += img->colors[(y + 1) * img->width + (x - 1)].g * filter[2][0] + img->colors[(y + 1) * img->width + x].g * filter[2][1] + img->colors[(y + 1) * img->width + (x + 1)].g * filter[2][2];
+                b += img->colors[(y + 1) * img->width + (x - 1)].b * filter[2][0] + img->colors[(y + 1) * img->width + x].b * filter[2][1] + img->colors[(y + 1) * img->width + (x + 1)].b * filter[2][2];
+
+                r /= 16;
+                g /= 16;
+                b /= 16;
+
+                img->colors_modified[y * img->width + x].r = r;
+                img->colors_modified[y * img->width + x].g = g;
+                img->colors_modified[y * img->width + x].b = b;
+            }
+        }
+    } else if (choice == 2) {
+        int filter[5][5] = {
+            {1, 4, 6, 4, 1},
+            {4, 16, 24, 16, 4},
+            {6, 24, 36, 24, 6},
+            {4, 16, 24, 16, 4},
+            {1, 4, 6, 4, 1},
+        };
+
+        for (int y = 2; y < img->height - 2; ++y) {
+            for (int x = 2; x < img->width - 2; ++x) {
+                float r = 0, g = 0, b = 0;
+
+                r += img->colors[(y - 2) * img->width + (x - 2)].r * filter[0][0] + img->colors[(y - 2) * img->width + (x - 1)].r * filter[0][1] + img->colors[(y - 2) * img->width + x].r * filter[0][2] + img->colors[(y - 2) * img->width + (x + 1)].r * filter[0][3] + img->colors[(y - 2) * img->width + (x + 2)].r * filter[0][4];
+                g += img->colors[(y - 2) * img->width + (x - 2)].g * filter[0][0] + img->colors[(y - 2) * img->width + (x - 1)].g * filter[0][1] + img->colors[(y - 2) * img->width + x].g * filter[0][2] + img->colors[(y - 2) * img->width + (x + 1)].g * filter[0][3] + img->colors[(y - 2) * img->width + (x + 2)].g * filter[0][4];
+                b += img->colors[(y - 2) * img->width + (x - 2)].b * filter[0][0] + img->colors[(y - 2) * img->width + (x - 1)].b * filter[0][1] + img->colors[(y - 2) * img->width + x].b * filter[0][2] + img->colors[(y - 2) * img->width + (x + 1)].b * filter[0][3] + img->colors[(y - 2) * img->width + (x + 2)].b * filter[0][4];
+
+                r += img->colors[(y - 1) * img->width + (x - 2)].r * filter[1][0] + img->colors[(y - 1) * img->width + (x - 1)].r * filter[1][1] + img->colors[(y - 1) * img->width + x].r * filter[1][2] + img->colors[(y - 1) * img->width + (x + 1)].r * filter[1][3] + img->colors[(y - 1) * img->width + (x + 2)].r * filter[1][4];
+                g += img->colors[(y - 1) * img->width + (x - 2)].g * filter[1][0] + img->colors[(y - 1) * img->width + (x - 1)].g * filter[1][1] + img->colors[(y - 1) * img->width + x].g * filter[1][2] + img->colors[(y - 1) * img->width + (x + 1)].g * filter[1][3] + img->colors[(y - 1) * img->width + (x + 2)].g * filter[1][4];
+                b += img->colors[(y - 1) * img->width + (x - 2)].b * filter[1][0] + img->colors[(y - 1) * img->width + (x - 1)].b * filter[1][1] + img->colors[(y - 1) * img->width + x].b * filter[1][2] + img->colors[(y - 1) * img->width + (x + 1)].b * filter[1][3] + img->colors[(y - 1) * img->width + (x + 2)].b * filter[1][4];
+
+                r += img->colors[y * img->width + (x - 2)].r * filter[2][0] + img->colors[y * img->width + (x - 1)].r * filter[2][1] + img->colors[y * img->width + x].r * filter[2][2] + img->colors[y * img->width + (x + 1)].r * filter[2][3] + img->colors[y * img->width + (x + 2)].r * filter[2][4];
+                g += img->colors[y * img->width + (x - 2)].g * filter[2][0] + img->colors[y * img->width + (x - 1)].g * filter[2][1] + img->colors[y * img->width + x].g * filter[2][2] + img->colors[y * img->width + (x + 1)].g * filter[2][3] + img->colors[y * img->width + (x + 2)].g * filter[2][4];
+                b += img->colors[y * img->width + (x - 2)].b * filter[2][0] + img->colors[y * img->width + (x - 1)].b * filter[2][1] + img->colors[y * img->width + x].b * filter[2][2] + img->colors[y * img->width + (x + 1)].b * filter[2][3] + img->colors[y * img->width + (x + 2)].b * filter[2][4];
+
+                r += img->colors[(y + 1) * img->width + (x - 2)].r * filter[3][0] + img->colors[(y + 1) * img->width + (x - 1)].r * filter[3][1] + img->colors[(y + 1) * img->width + x].r * filter[3][2] + img->colors[(y + 1) * img->width + (x + 1)].r * filter[3][3] + img->colors[(y + 1) * img->width + (x + 2)].r * filter[3][4];
+                g += img->colors[(y + 1) * img->width + (x - 2)].g * filter[3][0] + img->colors[(y + 1) * img->width + (x - 1)].g * filter[3][1] + img->colors[(y + 1) * img->width + x].g * filter[3][2] + img->colors[(y + 1) * img->width + (x + 1)].g * filter[3][3] + img->colors[(y + 1) * img->width + (x + 2)].g * filter[3][4];
+                b += img->colors[(y + 1) * img->width + (x - 2)].b * filter[3][0] + img->colors[(y + 1) * img->width + (x - 1)].b * filter[3][1] + img->colors[(y + 1) * img->width + x].b * filter[3][2] + img->colors[(y + 1) * img->width + (x + 1)].b * filter[3][3] + img->colors[(y + 1) * img->width + (x + 2)].b * filter[3][4];
+
+                r += img->colors[(y + 2) * img->width + (x - 2)].r * filter[4][0] + img->colors[(y + 2) * img->width + (x - 1)].r * filter[4][1] + img->colors[(y + 2) * img->width + x].r * filter[4][2] + img->colors[(y + 2) * img->width + (x + 1)].r * filter[4][3] + img->colors[(y + 2) * img->width + (x + 2)].r * filter[4][4];
+                g += img->colors[(y + 2) * img->width + (x - 2)].g * filter[4][0] + img->colors[(y + 2) * img->width + (x - 1)].g * filter[4][1] + img->colors[(y + 2) * img->width + x].g * filter[4][2] + img->colors[(y + 2) * img->width + (x + 1)].g * filter[4][3] + img->colors[(y + 2) * img->width + (x + 2)].g * filter[4][4];
+                b += img->colors[(y + 2) * img->width + (x - 2)].b * filter[4][0] + img->colors[(y + 2) * img->width + (x - 1)].b * filter[4][1] + img->colors[(y + 2) * img->width + x].b * filter[4][2] + img->colors[(y + 2) * img->width + (x + 1)].b * filter[4][3] + img->colors[(y + 2) * img->width + (x + 2)].b * filter[4][4];
+
+                r /= 256;
+                g /= 256;
+                b /= 256;
+
+                img->colors_modified[y * img->width + x].r = r;
+                img->colors_modified[y * img->width + x].g = g;
+                img->colors_modified[y * img->width + x].b = b;
+            }
+        }
+    } else {
+        cout << "Invalid Input!!" << endl;
+        cout << "\tTry Again." << endl;
+        gaussian_blur(img);
+    }
+
+    cout << "\n" << endl;
+    cout << "\t\t\t!!----Gaussian Blur Complete---!!" << endl;
+    cout << "\n" << endl;
+
+    cout << "\tCreating Blur Image......" << endl;
+    cout << "\tBlur Image Created named \"GaussianBlurImage.bmp\"......" << endl;
+
+     export_image(img, "GaussianBlurImage.bmp");
 }
 
 void sobel_edge_detection(Image* img) {
+    img->colors_modified = vector<Color>(img->height * img->width);
+    vector<Color> colors_avg = vector<Color>(img->height * img->width);
 
+    float avg = 0;
+    for (int y = 0; y < img->height; ++y) {
+        for (int x = 0; x < img->width; ++x) {
+            float r = 0, g = 0, b = 0;
+
+            b = img->colors[y * img->width + x].b;
+            g = img->colors[y * img->width + x].g;
+            r = img->colors[y * img->width + x].r;
+
+            avg = (r + g + b) / 3;
+
+            colors_avg[y * img->width + x].b = avg;
+            colors_avg[y * img->width + x].g = avg;
+            colors_avg[y * img->width + x].r = avg;
+        }
+    }
+
+    int gx[3][3] = {{1, 0, -1}, {2, 0, -2}, {1, 0, -1}};
+    int gy[3][3] = {{1, 2, 1}, {0, 0, 0}, {-1, -2, -1}};
+
+    int upThreshold;
+    cout << "Enter Threshold value for Edge Detection: ";
+    cin >> upThreshold;
+
+    for (int y = 0; y < img->height; ++y) {
+        for (int x = 0; x < img->width; ++x) {
+            if (y != 0 && y != img->height - 1 && x != 0 && x != img->width - 1) {
+                float Rx = 0, Gx = 0, Bx = 0;
+
+                Rx += colors_avg[(y - 1) * img->width + (x - 1)].r * gx[0][0] + colors_avg[(y - 1) * img->width + x].r * gx[0][1] + colors_avg[(y - 1) * img->width + (x + 1)].r * gx[0][2];
+                Gx += colors_avg[(y - 1) * img->width + (x - 1)].g * gx[0][0] + colors_avg[(y - 1) * img->width + x].g * gx[0][1] + colors_avg[(y - 1) * img->width + (x + 1)].g * gx[0][2];
+                Bx += colors_avg[(y - 1) * img->width + (x - 1)].b * gx[0][0] + colors_avg[(y - 1) * img->width + x].b * gx[0][1] + colors_avg[(y - 1) * img->width + (x + 1)].b * gx[0][2];
+
+                Rx += colors_avg[y * img->width + (x - 1)].r * gx[1][0] + colors_avg[y * img->width + x].r * gx[1][1] + colors_avg[y * img->width + (x + 1)].r * gx[1][2];
+                Gx += colors_avg[y * img->width + (x - 1)].g * gx[1][0] + colors_avg[y * img->width + x].g * gx[1][1] + colors_avg[y * img->width + (x + 1)].g * gx[1][2];
+                Bx += colors_avg[y * img->width + (x - 1)].b * gx[1][0] + colors_avg[y * img->width + x].b * gx[1][1] + colors_avg[y * img->width + (x + 1)].b * gx[1][2];
+
+                Rx += colors_avg[(y + 1) * img->width + (x - 1)].r * gx[2][0] + colors_avg[(y + 1) * img->width + x].r * gx[2][1] + colors_avg[(y + 1) * img->width + (x + 1)].r * gx[2][2];
+                Gx += colors_avg[(y + 1) * img->width + (x - 1)].g * gx[2][0] + colors_avg[(y + 1) * img->width + x].g * gx[2][1] + colors_avg[(y + 1) * img->width + (x + 1)].g * gx[2][2];
+                Bx += colors_avg[(y + 1) * img->width + (x - 1)].b * gx[2][0] + colors_avg[(y + 1) * img->width + x].b * gx[2][1] + colors_avg[(y + 1) * img->width + (x + 1)].b * gx[2][2];
+
+                double Ry = 0, Gy = 0, By = 0;
+
+                Ry += colors_avg[(y - 1) * img->width + (x - 1)].r * gy[0][0] + colors_avg[(y - 1) * img->width + x].r * gy[0][1] + colors_avg[(y - 1) * img->width + (x + 1)].r * gy[0][2];
+                Gy += colors_avg[(y - 1) * img->width + (x - 1)].g * gy[0][0] + colors_avg[(y - 1) * img->width + x].g * gy[0][1] + colors_avg[(y - 1) * img->width + (x + 1)].g * gy[0][2];
+                By += colors_avg[(y - 1) * img->width + (x - 1)].b * gy[0][0] + colors_avg[(y - 1) * img->width + x].b * gy[0][1] + colors_avg[(y - 1) * img->width + (x + 1)].b * gy[0][2];
+
+                Ry += colors_avg[y * img->width + (x - 1)].r * gy[1][0] + colors_avg[y * img->width + x].r * gy[1][1] + colors_avg[y * img->width + (x + 1)].r * gy[1][2];
+                Gy += colors_avg[y * img->width + (x - 1)].g * gy[1][0] + colors_avg[y * img->width + x].g * gy[1][1] + colors_avg[y * img->width + (x + 1)].g * gy[1][2];
+                By += colors_avg[y * img->width + (x - 1)].b * gy[1][0] + colors_avg[y * img->width + x].b * gy[1][1] + colors_avg[y * img->width + (x + 1)].b * gy[1][2];
+
+                Ry += colors_avg[(y + 1) * img->width + (x - 1)].r * gy[2][0] + colors_avg[(y + 1) * img->width + x].r * gy[2][1] + colors_avg[(y + 1) * img->width + (x + 1)].r * gy[2][2];
+                Gy += colors_avg[(y + 1) * img->width + (x - 1)].g * gy[2][0] + colors_avg[(y + 1) * img->width + x].g * gy[2][1] + colors_avg[(y + 1) * img->width + (x + 1)].g * gy[2][2];
+                By += colors_avg[(y + 1) * img->width + (x - 1)].b * gy[2][0] + colors_avg[(y + 1) * img->width + x].b * gy[2][1] + colors_avg[(y + 1) * img->width + (x + 1)].b * gy[2][2];
+
+                double sqrtBlue = sqrt(Bx * Bx + By * By);
+                double sqrtGreen = sqrt(Gx * Gx + Gy * Gy);
+                double sqrtRed = sqrt(Rx * Rx + Ry * Ry);
+
+                if (sqrtBlue > upThreshold) {
+                    sqrtBlue = 255;
+                } else {
+                    sqrtBlue = 0;
+                }
+
+                if (sqrtGreen > upThreshold) {
+                    sqrtGreen = 255;
+                } else {
+                    sqrtGreen = 0;
+                }
+
+                if (sqrtRed > upThreshold) {
+                    sqrtRed = 255;
+                } else {
+                    sqrtRed = 0;
+                }
+
+                img->colors_modified[y * img->width + x].b = sqrtBlue;
+                img->colors_modified[y * img->width + x].g = sqrtGreen;
+                img->colors_modified[y * img->width + x].r = sqrtRed;
+            } else {
+                img->colors_modified[y * img->width + x].r = 0;
+                img->colors_modified[y * img->width + x].g = 0;
+                img->colors_modified[y * img->width + x].b = 0;
+            }
+        }
+    }
+
+    cout << "\n" << endl;
+    cout << "\t\t\t!!----Sobel EdgeDetection Complete---!!" << endl;
+    cout << "\n" << endl;
+
+    cout << "\tCreating Edge Detection Image......" << endl;
+    cout << "\tEdge Detection Image Created named \"SobelImage.bmp\"......" << endl;
+    // Assuming export_image is defined elsewhere
+    export_image(img, "SobelImage.bmp");
 }
 
 void angle_calculation(Image* img) {
+    img->colors_modified = vector<Color>(img->height * img->width);
 
+    int gx[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+    int gy[3][3] = {{1, 2, 1}, {0, 0, 0}, {-1, -2, -1}};
+
+    int upThreshold;
+    cout << "Enter Threshold upper value for Angle Detection: ";
+    cin >> upThreshold;
+
+    int downThreshold;
+    cout << "Enter Threshold lower value for Angle Detection: ";
+    cin >> downThreshold;
+
+    for (int y = 1; y < img->height - 1; ++y) {
+        for (int x = 1; x < img->width - 1; ++x) {
+            float Rx = 0, Gx = 0, Bx = 0;
+
+            Rx += img->colors[(y - 1) * img->width + (x - 1)].r * gx[0][0] + img->colors[(y - 1) * img->width + x].r * gx[0][1] + img->colors[(y - 1) * img->width + (x + 1)].r * gx[0][2];
+            Gx += img->colors[(y - 1) * img->width + (x - 1)].g * gx[0][0] + img->colors[(y - 1) * img->width + x].g * gx[0][1] + img->colors[(y - 1) * img->width + (x + 1)].g * gx[0][2];
+            Bx += img->colors[(y - 1) * img->width + (x - 1)].b * gx[0][0] + img->colors[(y - 1) * img->width + x].b * gx[0][1] + img->colors[(y - 1) * img->width + (x + 1)].b * gx[0][2];
+
+            Rx += img->colors[y * img->width + (x - 1)].r * gx[1][0] + img->colors[y * img->width + x].r * gx[1][1] + img->colors[y * img->width + (x + 1)].r * gx[1][2];
+            Gx += img->colors[y * img->width + (x - 1)].g * gx[1][0] + img->colors[y * img->width + x].g * gx[1][1] + img->colors[y * img->width + (x + 1)].g * gx[1][2];
+            Bx += img->colors[y * img->width + (x - 1)].b * gx[1][0] + img->colors[y * img->width + x].b * gx[1][1] + img->colors[y * img->width + (x + 1)].b * gx[1][2];
+
+            Rx += img->colors[(y + 1) * img->width + (x - 1)].r * gx[2][0] + img->colors[(y + 1) * img->width + x].r * gx[2][1] + img->colors[(y + 1) * img->width + (x + 1)].r * gx[2][2];
+            Gx += img->colors[(y + 1) * img->width + (x - 1)].g * gx[2][0] + img->colors[(y + 1) * img->width + x].g * gx[2][1] + img->colors[(y + 1) * img->width + (x + 1)].g * gx[2][2];
+            Bx += img->colors[(y + 1) * img->width + (x - 1)].b * gx[2][0] + img->colors[(y + 1) * img->width + x].b * gx[2][1] + img->colors[(y + 1) * img->width + (x + 1)].b * gx[2][2];
+
+            double Ry = 0, Gy = 0, By = 0;
+
+            Ry += img->colors[(y - 1) * img->width + (x - 1)].r * gy[0][0] + img->colors[(y - 1) * img->width + x].r * gy[0][1] + img->colors[(y - 1) * img->width + (x + 1)].r * gy[0][2];
+            Gy += img->colors[(y - 1) * img->width + (x - 1)].g * gy[0][0] + img->colors[(y - 1) * img->width + x].g * gy[0][1] + img->colors[(y - 1) * img->width + (x + 1)].g * gy[0][2];
+            By += img->colors[(y - 1) * img->width + (x - 1)].b * gy[0][0] + img->colors[(y - 1) * img->width + x].b * gy[0][1] + img->colors[(y - 1) * img->width + (x + 1)].b * gy[0][2];
+
+            Ry += img->colors[y * img->width + (x - 1)].r * gy[1][0] + img->colors[y * img->width + x].r * gy[1][1] + img->colors[y * img->width + (x + 1)].r * gy[1][2];
+            Gy += img->colors[y * img->width + (x - 1)].g * gy[1][0] + img->colors[y * img->width + x].g * gy[1][1] + img->colors[y * img->width + (x + 1)].g * gy[1][2];
+            By += img->colors[y * img->width + (x - 1)].b * gy[1][0] + img->colors[y * img->width + x].b * gy[1][1] + img->colors[y * img->width + (x + 1)].b * gy[1][2];
+
+            Ry += img->colors[(y + 1) * img->width + (x - 1)].r * gy[2][0] + img->colors[(y + 1) * img->width + x].r * gy[2][1] + img->colors[(y + 1) * img->width + (x + 1)].r * gy[2][2];
+            Gy += img->colors[(y + 1) * img->width + (x - 1)].g * gy[2][0] + img->colors[(y + 1) * img->width + x].g * gy[2][1] + img->colors[(y + 1) * img->width + (x + 1)].g * gy[2][2];
+            By += img->colors[(y + 1) * img->width + (x - 1)].b * gy[2][0] + img->colors[(y + 1) * img->width + x].b * gy[2][1] + img->colors[(y + 1) * img->width + (x + 1)].b * gy[2][2];
+
+            float resultR, AngleR;
+            if (Rx == 0) {
+                AngleR = 90;
+            } else {
+                resultR = (Ry / Rx);
+                resultR = atan(resultR);
+                AngleR = (resultR * 180) / 3.1415;
+            }
+
+            float resultG, AngleG;
+            if (Gx == 0) {
+                AngleG = 90;
+            } else {
+                resultG = (Gy / Gx);
+                resultG = atan(resultG);
+                AngleG = (resultG * 180) / 3.1415;
+            }
+
+            float resultB, AngleB;
+            if (Bx == 0) {
+                AngleB = 90;
+                continue;
+            } else {
+                resultB = (By / Bx);
+                resultB = atan(resultB);
+                AngleB = (resultB * 180) / 3.1415;
+            }
+
+            if (AngleR > upThreshold) {
+                AngleR = 255;
+            } else {
+                AngleR = 0;
+            }
+            if (AngleG > upThreshold) {
+                AngleG = 255;
+            } else {
+                AngleG = 0;
+            }
+            if (AngleB > upThreshold) {
+                AngleB = 255;
+            } else {
+                AngleB = 0;
+            }
+
+            img->colors_modified[y * img->width + x].r = AngleR;
+            img->colors_modified[y * img->width + x].g = AngleG;
+            img->colors_modified[y * img->width + x].b = AngleB;
+        }
+    }
+
+    cout << "---Angle---" << endl;
+
+    cout << "\n" << endl;
+    cout << "\t\t\t!!----Angle Calculation Complete---!!" << endl;
+    cout << "\n" << endl;
+
+    cout << "\tCreating Image......" << endl;
+    cout << "\tImage Created named \"AngleImage.bmp\"......" << endl;
+    // Assuming export_image is defined elsewhere
+    export_image(img, "AngleImage.bmp");
 }
 
-void histogram(Image* img) {
 
+void histogram(Image* img) {
+    img->colors_modified = vector<Color>(img->height * img->width);
+
+    for (int y = 0; y < img->height; ++y) {
+        for (int x = 0; x < img->width; ++x) {
+            float r = img->colors[y * img->width + x].r;
+            float g = img->colors[y * img->width + x].g;
+            float b = img->colors[y * img->width + x].b;
+
+            int avg = (r + g + b) / 3;
+
+            img->colors_modified[y * img->width + x].r = avg;
+            img->colors_modified[y * img->width + x].g = avg;
+            img->colors_modified[y * img->width + x].b = avg;
+        }
+    }
+
+    int Hist[256] = {0};
+
+    for (int y = 0; y < img->height; ++y) {
+        for (int x = 0; x < img->width; ++x) {
+            int val = img->colors_modified[y * img->width + x].r;
+            Hist[val] += 1;
+        }
+    }
+
+    long long int cdf[256] = {0};
+    cdf[0] = Hist[0];
+
+    for (int i = 1; i < 256; ++i) {
+        cdf[i] = cdf[i - 1] + Hist[i];
+    }
+
+    int cdfMin = cdf[0];
+    for (int i = 1; i < 256; ++i) {
+        if (cdf[i] < cdfMin)
+            cdfMin = cdf[i];
+    }
+
+    int histogram[256] = {0};
+
+    for (int i = 0; i < 256; ++i) {
+        histogram[i] = round((cdf[i] - cdfMin) * 255) / ((img->height * img->width) - cdfMin);
+    }
+
+    // Printing histogram
+    printf("Histogram : \n\n");
+    for (int i = 0; i < 256; i++) {
+        if (i < 10) {
+            printf("[%d]   | ", i);
+            for (int j = 0; j <= (Hist[i] % 20); j++)
+                printf("*");
+            printf("-->(%d)", Hist[i]);
+            printf("\t\t\t\t\t\t\t   ||Equalized value {%d}", histogram[i]);
+            printf("\n");
+        } else if (i < 100) {
+            printf("[%d]  | ", i);
+            for (int j = 0; j <= (Hist[i] % 20); j++)
+                printf("*");
+            printf("-->(%d)", Hist[i]);
+            printf("\t\t\t\t\t\t\t   ||Equalized value {%d}", histogram[i]);
+            printf("\n");
+        } else if (i < 256) {
+            printf("[%d] | ", i);
+            for (int j = 0; j <= (Hist[i] % 20); j++)
+                printf("*");
+            printf("-->(%d)", Hist[i]);
+            printf("\t\t\t\t\t\t\t   ||Equalized value {%d}", histogram[i]);
+            printf("\n");
+        }
+    }
 }
 
 void export_image(const Image* img, const char* path) {
