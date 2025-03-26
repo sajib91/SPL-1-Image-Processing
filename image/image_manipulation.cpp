@@ -324,11 +324,15 @@ void smoothing(Image* img) {
         {1, 1, 1}
     };
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> bc77ffb49edc5c6c298d026044a319e7c6cdd9e5
     for (int y = 1; y < img->height - 1; ++y) {
         for (int x = 1; x < img->width - 1; ++x) {
             float r = 0, g = 0, b = 0;
 
+<<<<<<< HEAD
        for (int i = -1; i <= 1; ++i) {
     for (int j = -1; j <= 1; ++j) {
         r += img->colors[(y + i) * img->width + (x + j)].r;
@@ -340,6 +344,23 @@ r /= 9;
 g /= 9;
 b /= 9;
 
+=======
+            r += img->colors[(y - 1) * img->width + (x - 1)].r * filter[0][0] + img->colors[(y - 1) * img->width + x].r * filter[0][1] + img->colors[(y - 1) * img->width + (x + 1)].r * filter[0][2];
+            g += img->colors[(y - 1) * img->width + (x - 1)].g * filter[0][0] + img->colors[(y - 1) * img->width + x].g * filter[0][1] + img->colors[(y - 1) * img->width + (x + 1)].g * filter[0][2];
+            b += img->colors[(y - 1) * img->width + (x - 1)].b * filter[0][0] + img->colors[(y - 1) * img->width + x].b * filter[0][1] + img->colors[(y - 1) * img->width + (x + 1)].b * filter[0][2];
+
+            r += img->colors[y * img->width + (x - 1)].r * filter[1][0] + img->colors[y * img->width + x].r * filter[1][1] + img->colors[y * img->width + (x + 1)].r * filter[1][2];
+            g += img->colors[y * img->width + (x - 1)].g * filter[1][0] + img->colors[y * img->width + x].g * filter[1][1] + img->colors[y * img->width + (x + 1)].g * filter[1][2];
+            b += img->colors[y * img->width + (x - 1)].b * filter[1][0] + img->colors[y * img->width + x].b * filter[1][1] + img->colors[y * img->width + (x + 1)].b * filter[1][2];
+
+            r += img->colors[(y + 1) * img->width + (x - 1)].r * filter[2][0] + img->colors[(y + 1) * img->width + x].r * filter[2][1] + img->colors[(y + 1) * img->width + (x + 1)].r * filter[2][2];
+            g += img->colors[(y + 1) * img->width + (x - 1)].g * filter[2][0] + img->colors[(y + 1) * img->width + x].g * filter[2][1] + img->colors[(y + 1) * img->width + (x + 1)].g * filter[2][2];
+            b += img->colors[(y + 1) * img->width + (x - 1)].b * filter[2][0] + img->colors[(y + 1) * img->width + x].b * filter[2][1] + img->colors[(y + 1) * img->width + (x + 1)].b * filter[2][2];
+
+            r /= 9;
+            g /= 9;
+            b /= 9;
+>>>>>>> bc77ffb49edc5c6c298d026044a319e7c6cdd9e5
 
             img->colors_modified[y * img->width + x].r = r;
             img->colors_modified[y * img->width + x].g = g;
